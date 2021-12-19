@@ -37,7 +37,7 @@ contract ECIOLockToken is Ownable, ReentrancyGuard {
         ECIO_TOKEN = _ecioTokenAddr;
 
         periodTimeandAmount[PERIOD_1ST].time = 1640008800;
-        periodTimeandAmount[PERIOD_2ND].time = 1671544800;
+        periodTimeandAmount[PERIOD_2ND].time = 1671570000;
 
     }
 
