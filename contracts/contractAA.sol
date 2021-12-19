@@ -16,15 +16,19 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 /// @author ECIO Engineering Team
 /// @title Claimtoken Smart Contract
 
-contract ECIOTeamToken is Ownable, ReentrancyGuard {
+contract ECIOLockToken is Ownable, ReentrancyGuard {
 
     address public ECIO_TOKEN;
 
     uint8 public constant PERIOD_1ST  = 1;
     uint8 public constant PERIOD_2ND  = 2;
 
-    mapping(uint8 => uint256) amountPerPeriod;
-    mapping(uint8 => uint256) periodReleaseTime;
+    mapping(uint8 => timeAndAmount) periodTimeandAmount;
+
+    struct timeAndAmount{
+      uint256 time;
+      uint256 amount;
+    }
 
     constructor(
         address _ecioTokenAddr
@@ -32,28 +36,28 @@ contract ECIOTeamToken is Ownable, ReentrancyGuard {
     ) {
         ECIO_TOKEN = _ecioTokenAddr;
 
-        periodReleaseTime[PERIOD_1ST] = 1640034000;
-        periodReleaseTime[PERIOD_2ND] = 1671570000;
+        periodTimeandAmount[PERIOD_1ST].time = 1640008800;
+        periodTimeandAmount[PERIOD_2ND].time = 1671544800;
 
     }
 
 
   function setPeriodReleaseTime(uint8 _periodId, uint256 _releaseTime) public onlyOwner{
-      periodReleaseTime[_periodId] = _releaseTime;
+      periodTimeandAmount[_periodId].time = _releaseTime;
   }
 
   function setAmountPerPeriod(uint8 _periodId, uint256 _amount) public onlyOwner{
-      amountPerPeriod[_periodId] = _amount;
+      periodTimeandAmount[_periodId].amount = _amount;
   }
 
   function _transferToOwner(address _owner, uint256 _amount, uint8 _periodId) public onlyOwner nonReentrant {
-        require( block.timestamp >= periodReleaseTime[_periodId], "RealeaseTime: Your time has not come" );
-        require( _amount <= amountPerPeriod[_periodId], "Amount: Token amount is too high" );
+        require( block.timestamp >= periodTimeandAmount[_periodId].time, "RealeaseTime: Your time has not come" );
+        require( _amount <= periodTimeandAmount[_periodId].amount, "Amount: Token amount is too high" );
         IERC20(ECIO_TOKEN).transfer(_owner, _amount);
     }
 
   function checkIsAvailable(uint8 _periodId) public view returns (bool) {
-        if( block.timestamp >= periodReleaseTime[_periodId] ) {
+        if( block.timestamp >= periodTimeandAmount[_periodId].time ) {
           return true;
         } else {
           return false;
